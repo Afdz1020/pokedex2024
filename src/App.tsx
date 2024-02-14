@@ -1,35 +1,89 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect, useCallback, useReducer } from 'react';
+import './App.css';
+import { useRef } from 'react';
+
+type ActionReduce = {
+  type: string;
+  payload?: string;
+};
+
+type State = {
+  name: string;
+  age: number;
+};
+
+function reducer(state: State, action: ActionReduce) {
+  switch (action.type) {
+    case 'incrementar_edad':
+      return {
+        ...state,
+        age: state.age++,
+      };
+    case 'cambiar_nombre':
+      return {
+        ...state,
+        name: action.payload,
+      };
+    default: {
+      return { name: 'Andres', age: 30 };
+    }
+  }
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+  const data = useRef(null);
+  const [count, setCount] = useState(0);
+  const [{ name, age }, dispatch] = useReducer(reducer, {
+    name: 'Andres',
+    age: 30,
+  });
+
+  // const pepitoPerez = useMemo(() => {
+  //   const data = [{ id: '1', name: 'pepito' }];
+  //   return data[0];
+  // }, [count]);
+
+  useEffect(() => {
+    data.current = { gato: 'felix el gato' };
+    console.log('hola mundo');
+  }, [count]);
+
+  const incrementar = () => {
+    setCount((pepito) => {
+      return pepito + 1;
+    });
+  };
+
+  const decrementar = useCallback(() => {
+    setCount((prevCount) => prevCount - 1);
+  }, []);
+
+  // const decrementar = () => {
+  //   setCount((prevCount) => prevCount - 1);
+  // };
+
+  const incrementarEdad = () => {
+    dispatch({ type: 'incrementar_edad' });
+  };
+
+  const cambiarNombre = () => {
+    dispatch({ type: 'cambiar_nombre', payload: 'Sergio' });
+  };
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
+      <p>
+        mi nombre es : {name} y tengo {age}
       </p>
+
+      <button onClick={incrementarEdad}>Incrementar edad</button>
+      <button onClick={cambiarNombre}>Cambiar Nombre</button>
+      {/* <p>El contador es: {count}</p>
+
+      <button onClick={incrementar}>Incrementar</button>
+      <button onClick={decrementar}>Decrementar</button> */}
     </>
-  )
+  );
 }
 
-export default App
+export default App;
