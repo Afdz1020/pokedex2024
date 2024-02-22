@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import { useState, useEffect, useCallback, useReducer } from 'react';
 import './App.css';
 import { useRef } from 'react';
@@ -82,6 +83,43 @@ function App() {
 
       <button onClick={incrementar}>Incrementar</button>
       <button onClick={decrementar}>Decrementar</button> */}
+=======
+import { useState, useEffect } from 'react';
+import './App.css';
+import { Pepito } from './components/Pepito';
+
+function App() {
+  const [count, setCount] = useState(0);
+  const [showPepito, setShowPepito] = useState(false);
+
+  useEffect(() => {
+    console.log('useEffect Hook');
+    return () => {
+      console.log('Return del useEffect');
+    };
+  }, [count]);
+
+  const incrementar = () => {
+    setCount((prevCount) => prevCount + 1);
+  };
+
+  const decrementar = () => {
+    setCount((prevCount) => prevCount - 1);
+  };
+
+  const mostrarPepito = () => setShowPepito((prevPepito) => !prevPepito);
+
+  return (
+    <>
+      {showPepito ? <Pepito /> : null}
+      <p>el contador es: {count}</p>
+
+      <button onClick={incrementar}>Incrementar</button>
+
+      <button onClick={decrementar}>Decrementar</button>
+
+      <button onClick={mostrarPepito}>Mostrar Pepito</button>
+>>>>>>> Stashed changes
     </>
   );
 }
