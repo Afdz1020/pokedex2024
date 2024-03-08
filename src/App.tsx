@@ -33,9 +33,12 @@ function App() {
     }
   };
 
+  const clearPokemons = () => setPokemons([]);
+
   return (
     <main>
       <section className="container__pokemons">
+        <button onClick={clearPokemons}>Clerar Pokemons</button>
         {pokemons?.length
           ? pokemons.map((pokemon) => (
               <div key={pokemon.name} className="card">
