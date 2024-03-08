@@ -1,88 +1,70 @@
-import { useState, useEffect, useCallback, useReducer } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import './App.css';
-import { useRef } from 'react';
+import { getIdPokemon } from './utils/utils';
 
-type ActionReduce = {
-  type: string;
-  payload?: string;
-};
-
-type State = {
+type Pokemon = {
   name: string;
-  age: number;
+  url: string;
 };
 
-function reducer(state: State, action: ActionReduce) {
-  switch (action.type) {
-    case 'incrementar_edad':
-      return {
-        ...state,
-        age: state.age++,
-      };
-    case 'cambiar_nombre':
-      return {
-        ...state,
-        name: action.payload,
-      };
-    default: {
-      return { name: 'Andres', age: 30 };
-    }
-  }
-}
+type PokemonsResponse = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Pokemon[];
+};
 
 function App() {
-  const data = useRef(null);
-  const [count, setCount] = useState(0);
-  const [{ name, age }, dispatch] = useReducer(reducer, {
-    name: 'Andres',
-    age: 30,
-  });
-
-  // const pepitoPerez = useMemo(() => {
-  //   const data = [{ id: '1', name: 'pepito' }];
-  //   return data[0];
-  // }, [count]);
+  const [pokemons, setPokemons] = useState<Pokemon[]>([]);
 
   useEffect(() => {
-    data.current = { gato: 'felix el gato' };
-    console.log('hola mundo');
-  }, [count]);
-
-  const incrementar = () => {
-    setCount((pepito) => {
-      return pepito + 1;
-    });
-  };
-
-  const decrementar = useCallback(() => {
-    setCount((prevCount) => prevCount - 1);
+    getPokemons();
   }, []);
 
-  // const decrementar = () => {
-  //   setCount((prevCount) => prevCount - 1);
-  // };
-
-  const incrementarEdad = () => {
-    dispatch({ type: 'incrementar_edad' });
-  };
-
-  const cambiarNombre = () => {
-    dispatch({ type: 'cambiar_nombre', payload: 'Sergio' });
+  const getPokemons = async () => {
+    try {
+      const pokemons = await axios.get<PokemonsResponse>(
+        'https://pokeapi.co/api/v2/pokemon?limit=50'
+      );
+      setPokemons(pokemons.data.results);
+    } catch (error) {
+      setPokemons([]);
+    }
   };
 
   return (
-    <>
-      <p>
-        mi nombre es : {name} y tengo {age}
-      </p>
+    <main>
+      <section className="container__pokemons">
+        {pokemons?.length
+          ? pokemons.map((pokemon) => (
+              <div key={pokemon.name} className="card">
+                <div className="container__img">
+                  <img
+                    className="img__pokemon"
+                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/${getIdPokemon(
+                      pokemon.url
+                    )}.gif`}
+                    alt={pokemon.name}
+                  />
+                </div>
 
-      <button onClick={incrementarEdad}>Incrementar edad</button>
-      <button onClick={cambiarNombre}>Cambiar Nombre</button>
-      {/* <p>El contador es: {count}</p>
-
-      <button onClick={incrementar}>Incrementar</button>
-      <button onClick={decrementar}>Decrementar</button> */}
-    </>
+                <div className="card__content">
+                  <p className="card__title">{pokemon.name}</p>
+                </div>
+                {/* <p>{pokemon.name}</p> */}
+              </div>
+            ))
+          : null}
+      </section>
+      {/* <ul>
+        {pokemons?.length
+          ? pokemons.map((pokemon) => (
+              <li key={pokemon.name}>{pokemon.name}</li>
+            ))
+          : null}
+      </ul> */}
+    </main>
   );
 }
 
