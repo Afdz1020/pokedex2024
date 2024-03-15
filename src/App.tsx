@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import './App.css';
 import { getIdPokemon } from './utils/utils';
@@ -17,28 +17,41 @@ type PokemonsResponse = {
 
 function App() {
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
+  const [offset, setOffset] = useState(0);
 
-  useEffect(() => {
-    getPokemons();
-  }, []);
-
-  const getPokemons = async () => {
+  const getPokemons = async (offsetPokemon: number) => {
     try {
       const pokemons = await axios.get<PokemonsResponse>(
-        'https://pokeapi.co/api/v2/pokemon?limit=50'
+        `https://pokeapi.co/api/v2/pokemon?limit=5&offset=${offsetPokemon}`
       );
-      setPokemons(pokemons.data.results);
+      return pokemons.data.results;
     } catch (error) {
       setPokemons([]);
+      console.log('No pokemons avaliable');
     }
   };
 
-  const clearPokemons = () => setPokemons([]);
+  const getInitPokemos = useCallback(async () => {
+    const pokemons = await getPokemons(0);
+    setPokemons(pokemons);
+  }, []);
+
+  useEffect(() => {
+    getInitPokemos();
+  }, [getInitPokemos]);
+
+  const getMorePokemons = async () => {
+    const nextOffset = offset + 5;
+    const nextPokemons = await getPokemons(nextOffset);
+    setOffset(nextOffset);
+    setPokemons((pervPokemons) => {
+      return [...pervPokemons, ...nextPokemons];
+    });
+  };
 
   return (
     <main>
       <section className="container__pokemons">
-        <button onClick={clearPokemons}>Clerar Pokemons</button>
         {pokemons?.length
           ? pokemons.map((pokemon) => (
               <div key={pokemon.name} className="card">
@@ -60,13 +73,7 @@ function App() {
             ))
           : null}
       </section>
-      {/* <ul>
-        {pokemons?.length
-          ? pokemons.map((pokemon) => (
-              <li key={pokemon.name}>{pokemon.name}</li>
-            ))
-          : null}
-      </ul> */}
+      <button onClick={getMorePokemons}>Ver mas</button>
     </main>
   );
 }
