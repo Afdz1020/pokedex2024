@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import './App.css';
 import { getIdPokemon } from './utils/utils';
+import { Loading } from './components/loading-icon/loading';
 
 type Pokemon = {
   name: string;
@@ -18,9 +19,11 @@ type PokemonsResponse = {
 function App() {
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
   const [offset, setOffset] = useState(0);
+  const [isLoading, setLoading] = useState(true);
 
   const getPokemons = async (offsetPokemon: number) => {
     try {
+      setLoading(true);
       const pokemons = await axios.get<PokemonsResponse>(
         `https://pokeapi.co/api/v2/pokemon?limit=5&offset=${offsetPokemon}`
       );
@@ -28,6 +31,8 @@ function App() {
     } catch (error) {
       setPokemons([]);
       console.log('No pokemons avaliable');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,7 +78,10 @@ function App() {
             ))
           : null}
       </section>
-      <button onClick={getMorePokemons}>Ver mas</button>
+      <div className="container__option ">
+        {isLoading ? <Loading /> : null}
+        <button onClick={getMorePokemons}>Ver mas</button>
+      </div>
     </main>
   );
 }
